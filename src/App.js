@@ -64,7 +64,7 @@ function App() {
   return (
     <div className="App">
       <p>test</p>
-      <button onClick={() => myFunction()}>Click me</button> 
+      <button className='btn btn-primary' onClick={() => myFunction()}>Click me</button> 
     </div>
   );
 }
