@@ -19,7 +19,23 @@ function App() {
     }};
 
     xhr.send();
-    */
+    */  
+
+    //test requests
+    const postParams = {
+      "name":"1stparty",
+      "description": "1st party request",
+      "dueIn": 10
+    };
+
+    const updateparams = {
+      "id": 60,
+      "name": "test",
+      "description": "test",
+      "dueDate": "2022-06-23T17:37:19.377",
+      "isDone": true
+  };
+    
     API.getAll().then(response => { 
       console.log(response.data.data);  
       console.log(response.status);
@@ -29,6 +45,18 @@ function App() {
       console.log(response.data.data);  
       console.log(response.status);
     });
+
+    //API.post(postParams).then(response => {  
+    //  console.log(response.status);
+    //});
+
+    //API.put(updateparams).then(response => {  
+    //  console.log(response.status);
+    //});
+
+    //API.del("65").then(response => {  
+    //  console.log(response.status);
+    //});
 
   };
   
