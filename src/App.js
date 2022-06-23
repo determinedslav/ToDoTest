@@ -1,5 +1,5 @@
 import './App.css';
-import remote from './network/remote';
+import API from './network/RequestHandler';
 
 function App() {
 
@@ -20,12 +20,12 @@ function App() {
 
     xhr.send();
     */
-    remote.getAll().then(response => { 
+    API.getAll().then(response => { 
       console.log(response.data.data);  
       console.log(response.status);
     });
 
-    remote.get("16").then(response => { 
+    API.get("16").then(response => { 
       console.log(response.data.data);  
       console.log(response.status);
     });
