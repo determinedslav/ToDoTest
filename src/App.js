@@ -5,7 +5,7 @@ import React, {useState} from 'react';
 function App() {
 
   const [status, setStatus] = useState('test');
-  const [tasks, setTasks] = useState('placeholder');
+  const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState(' ');
   const [description, setDescription] = useState(' ');
   const [due, setDue] = useState(' ');
@@ -63,9 +63,27 @@ function App() {
   const getAllTasks = () =>  {
     API.getAll().then(response => { 
       console.log(response.data.data);
+      setTasks(response.data.data);
     }).catch(error => {
       console.log(error.toJSON());
   })};
+
+  const createTask = () => {
+    const postParams = {
+      "name":title,
+      "description": description,
+      "dueIn": due
+    };
+
+    API.post(postParams).then(response => {  
+      console.log(response.status);
+    }).catch(error => {
+      console.log(error.toJSON());
+      setErrorMessage("An error has occured while trying to create a new task")
+    });
+
+    getAllTasks();
+  };
   
 
   const validate = () => {
@@ -79,20 +97,7 @@ function App() {
     } else {
       setErrorMessage(" ");
 
-      const postParams = {
-        "name":title,
-        "description": description,
-        "dueIn": due
-      };
-
-      API.post(postParams).then(response => {  
-        console.log(response.status);
-      }).catch(error => {
-        console.log(error.toJSON());
-        setErrorMessage("An error has occured while trying to create a new task")
-      });
-
-      getAllTasks();
+      createTask();
     }
   }  
 
@@ -101,7 +106,7 @@ function App() {
     <div className="d-flex justify-content-center">
       <div className="m-5 p-3 w-75">
         <form id="searchUser" onSubmit={(e) => e.preventDefault()}>
-          <div className="bg-light border rounded">
+          <div className="bg-light border rounded mb-5">
             <div className="border p-3">
               <div className="h5 p-2">
                 Create a new Task
@@ -143,8 +148,51 @@ function App() {
             </div>
           </div>
         </form>
+        <div className="bg-light border rounded mt-5">
+            <div className="border p-3">
+              <div className="h5 p-2">
+                List of all Tasks
+              </div>
+            </div>
+            {// eslint-disable-next-line
+              tasks.map((tasks) => {
+                return <div className="border p-4 bg-white" key={tasks.id}>
+                <div className="mb-3">
+                  <div className="p-2">
+                    Title
+                  </div>
+                  <div className="mb-2 text-wrap">
+                    <textarea className="form-control mt-2" id="title" value={tasks.name} rows={1} readOnly/>
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <div className="p-2">
+                    Description
+                  </div>
+                  <div className="mb-2">
+                    <textarea className="form-control mt-2" id="description" value={tasks.description} rows={6} readOnly/>
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <div className="p-2 d-inline-block">
+                    Status:
+                  </div>
+                  <div className="d-inline-block">
+                    {tasks.dueDate}
+                  </div>
+                </div>
+              </div>
+            })}
+            <div className="border p-4">           
+            </div>
+          </div>
       <div className="">
-        <p>{tasks[0].name}</p>
+        {// eslint-disable-next-line
+          tasks.map((tasks) => {
+            return <span key={tasks.id} className="ml-2">
+              <p>{tasks.name}</p>
+            </span>
+        })}
         <button className='btn btn-primary' onClick={() => myFunction()}>{status}</button> 
       </div>
     </div>
