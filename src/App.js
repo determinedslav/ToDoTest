@@ -4,7 +4,7 @@ import React, {useState} from 'react';
 
 function App() {
 
-  const [tasks, setTasks] = useState([{ id: 0, name : "Example Task", description: "Example Task Description", dueDate : "Pending"}]);
+  const [tasks, setTasks] = useState([{ id: 0, name : "Example Task", description: "Example Task Description", hoursLeft : 0, priority : 0}]);
   const [title, setTitle] = useState(' ');
   const [description, setDescription] = useState(' ');
   const [due, setDue] = useState(' ');
@@ -13,8 +13,26 @@ function App() {
 
   const getAllTasks = () =>  {
     API.getAll().then(response => { 
-      console.log(response.data.data);
-      setTasks(response.data.data);
+
+      var tasksTempHolder = response.data.data
+      console.log(tasksTempHolder);
+
+      tasksTempHolder.forEach(task => {
+        var hoursLeft = getDateDifference(task.dueDate);
+        task.hoursLeft = hoursLeft;
+
+        task.priority = getPriorityValue(task);
+      });
+
+      tasksTempHolder.sort((a, b) => {
+        if (a.priority === b.priority){
+          return a.hoursLeft < b.hoursLeft ? -1 : 1
+        } else {
+          return b.priority < a.priority ? -1 : 1
+        }
+      });
+
+      setTasks(tasksTempHolder);
     }).catch(error => {
       console.log(error.toJSON());
   }).then(()=>{
@@ -40,7 +58,7 @@ function App() {
   };
 
   const completeTask = (key) => {
-    const updateparams = tasks[key];
+    var updateparams = tasks[key];
     updateparams.isDone = true;
 
     setDisableButton(true);
@@ -79,6 +97,50 @@ function App() {
       createTask();
     }
   }  
+
+  const getStyle = (priority, hoursLeft) => {
+    switch (priority) {
+      case 10:
+        return  <div className="bg-success m-4 p-2 d-inline-block rounded">
+                  Completed
+                </div>
+      case 20:
+        return  <div className="bg-danger m-4 p-2 d-inline-block rounded">
+                  Expired
+                </div>
+      case 30:
+        return  <div className="bg-primary m-4 p-2 d-inline-block rounded">
+                  {hoursLeft + " hour(s) left"}
+                </div>
+      case 40:
+        return  <div className="bg-warning m-4 p-2 d-inline-block rounded">
+                  {hoursLeft + " hours left"}
+                </div>
+      default:
+        return  <div className="bg-white m-4 p-2 d-inline-block rounded">
+                  Example
+                </div>
+    }
+  }
+
+  const getDateDifference = (date) => {
+    var currentDate = new Date(new Date().toISOString())
+    var taskDate = new Date(date);
+    var diff = taskDate - currentDate;
+    return Math.ceil(diff / (1000 * 60 * 60) +3);
+  }
+
+  const getPriorityValue = (task) => {
+    if (task.isDone) {
+      return 10;
+    } else if (task.hoursLeft <= 0) {
+      return 20;
+    } else if (task.hoursLeft < 12) {
+      return 40;
+    } else {
+      return 30;
+    }
+  }
 
   return <div>
     {
@@ -137,14 +199,14 @@ function App() {
             </div>
           </div>
           {// eslint-disable-next-line
-            tasks.map((tasks, i) => {
+            tasks.map((task, i) => {
               return <div className="border p-4 bg-white" key={i}>
               <div className="mb-3">
                 <div className="p-2">
                   Title
                 </div>
                 <div className="mb-2 text-wrap">
-                  <textarea className="form-control mt-2" id="title" value={tasks.name} rows={1} readOnly/>
+                  <textarea className="form-control mt-2" id="title" value={task.name} rows={1} readOnly/>
                 </div>
               </div>
               <div className="mb-4">
@@ -152,23 +214,21 @@ function App() {
                   Description
                 </div>
                 <div className="mb-2">
-                  <textarea className="form-control mt-2" id="description" value={tasks.description} rows={6} readOnly/>
+                  <textarea className="form-control mt-2" id="description" value={task.description} rows={6} readOnly/>
                 </div>
               </div>
               <div className="mb-3">
                 <div className="p-2 d-inline-block">
                   Status:
                 </div>
-                <div className="m-4 p-2 d-inline-block bg-primary rounded">
-                  {tasks.dueDate}
-                </div>
+                {getStyle(task.priority, task.hoursLeft)}
               </div>
               <div className="p-3 d-flex justify-content-between">  
                 <div className="">
-                  <button className={disableButton===false ? "btn btn-success btn-lg" : "btn btn-lg disabled"} onClick = {() => completeTask(i)}>Finish Task</button>
+                  <button className={disableButton===false && task.priority >20 ? "btn btn-success btn-lg" : "btn btn-outline-success btn-lg disabled"} onClick = {() => completeTask(i)}>Finish Task</button>
                 </div>         
                 <div className="">
-                  <button className={disableButton===false ? "btn btn-danger btn-lg" : "btn btn-lg disabled"} onClick = {() => deleteTask(tasks.id)}>Delete Task</button>
+                  <button className={disableButton===false && task.priority >20 ? "btn btn-danger btn-lg" : "btn btn-outline-danger btn-lg disabled"} onClick = {() => deleteTask(task.id)}>Delete Task</button>
                 </div>
               </div>
             </div>
