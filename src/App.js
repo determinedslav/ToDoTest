@@ -110,11 +110,11 @@ function App() {
                 </div>
       case 30:
         return  <div className="bg-primary m-4 p-2 d-inline-block rounded">
-                  {hoursLeft + " hour(s) left"}
+                  {hoursLeft + " hours left"}
                 </div>
       case 40:
         return  <div className="bg-warning m-4 p-2 d-inline-block rounded">
-                  {hoursLeft + " hours left"}
+                  {hoursLeft + " hour(s) left"}
                 </div>
       default:
         return  <div className="bg-white m-4 p-2 d-inline-block rounded">
