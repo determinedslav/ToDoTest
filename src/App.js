@@ -4,45 +4,12 @@ import React, {useState} from 'react';
 
 function App() {
 
-  const [status, setStatus] = useState('test');
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState([{ id: 0, name : "Example Task", description: "Example Task Description", dueDate : "Pending"}]);
   const [title, setTitle] = useState(' ');
   const [description, setDescription] = useState(' ');
   const [due, setDue] = useState(' ');
   const [errorMessage, setErrorMessage] = useState(' ');
-
-  const myFunction = () => {
-    /*
-    var url = "https://auto.loanvantage360.com/fps/api/todo";
-
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", url);
-
-    xhr.setRequestHeader("Authorization", "Bearer YzQ2ZWVhM2QtY2MxNi00MGMwLTkwOTYtNjJiMGE3YjFlM2MzOmUxNTQ4M2FmLTk4OGQtNDc1My1iYjU5LTkyNmU4ZDAwZjQzMw==");
-
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        console.log(xhr.status);
-        console.log(xhr.responseText);
-    }};
-
-    xhr.send();
-    */  
-
-    //test requests
-
-    API.getAll().then(response => { 
-      setTasks(response.data.data);  
-      setStatus(response.status);
-      console.log(response.data.data);
-    });
-
-    API.get("16").then(response => { 
-      console.log(response.data.data);  
-      console.log(response.status);
-    });
-
-  };
+  const [disableButton, setDisableButton] = useState(false);
 
   const getAllTasks = () =>  {
     API.getAll().then(response => { 
@@ -50,6 +17,8 @@ function App() {
       setTasks(response.data.data);
     }).catch(error => {
       console.log(error.toJSON());
+  }).then(()=>{
+    setDisableButton(false);
   })};
 
   const createTask = () => {
@@ -59,6 +28,7 @@ function App() {
       "dueIn": due
     };
 
+    setDisableButton(true);
     API.post(postParams).then(response => {  
       console.log(response.status);
     }).catch(error => {
@@ -73,6 +43,7 @@ function App() {
     const updateparams = tasks[key];
     updateparams.isDone = true;
 
+    setDisableButton(true);
     API.put(updateparams).then(response => {  
       console.log(response.status);
     }).catch(error => {
@@ -84,6 +55,7 @@ function App() {
   }
 
   const deleteTask = (id) => {
+    setDisableButton(true);
     API.del(id).then(response => {  
       console.log(response.status);
     }).catch(error => {
@@ -104,7 +76,6 @@ function App() {
       setErrorMessage("Task description cannot be more than 500 characters long");
     } else {
       setErrorMessage(" ");
-
       createTask();
     }
   }  
@@ -151,62 +122,62 @@ function App() {
                 {errorMessage}
               </div>         
               <div className="p-2">
-                <button className="btn btn-primary" onClick = {() => validate()}>Create Task</button>
+                <button className={disableButton===false ? "btn btn-primary" : "btn disabled"} onClick = {() => validate()}>Create Task</button>
               </div>
             </div>
           </div>
         </form>
         <div className="bg-light border rounded mt-5">
-            <div className="border p-3">
-              <div className="h5 p-2">
-                List of all Tasks
-              </div>
+          <div className="border p-3 d-flex justify-content-between">
+            <div className="h5 p-2">
+              List of all Tasks
             </div>
-            {// eslint-disable-next-line
-              tasks.map((tasks, i) => {
-                return <div className="border p-4 bg-white" key={i}>
-                <div className="mb-3">
-                  <div className="p-2">
-                    Title
-                  </div>
-                  <div className="mb-2 text-wrap">
-                    <textarea className="form-control mt-2" id="title" value={tasks.name} rows={1} readOnly/>
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <div className="p-2">
-                    Description
-                  </div>
-                  <div className="mb-2">
-                    <textarea className="form-control mt-2" id="description" value={tasks.description} rows={6} readOnly/>
-                  </div>
-                </div>
-                <div className="mb-3">
-                  <div className="p-2 d-inline-block">
-                    Status:
-                  </div>
-                  <div className="m-4 p-2 d-inline-block bg-primary rounded">
-                    {tasks.dueDate}
-                  </div>
-                </div>
-                <div className="p-3 d-flex justify-content-between">  
-                  <div className="">
-                    <button className="btn btn-success btn-lg" onClick = {() => completeTask(i)}>Finish Task</button>
-                  </div>         
-                  <div className="">
-                    <button className="btn btn-danger btn-lg" onClick = {() => deleteTask(tasks.id)}>Delete Task</button>
-                  </div>
-                </div>
-              </div>
-            })}
-            <div className="border p-4">           
+            <div className="p-1">
+              <button className='btn btn-primary' onClick={() => getAllTasks()}>Reload Tasks</button>
             </div>
           </div>
-      <div className="">
-        <button className='btn btn-primary' onClick={() => myFunction()}>{status}</button> 
+          {// eslint-disable-next-line
+            tasks.map((tasks, i) => {
+              return <div className="border p-4 bg-white" key={i}>
+              <div className="mb-3">
+                <div className="p-2">
+                  Title
+                </div>
+                <div className="mb-2 text-wrap">
+                  <textarea className="form-control mt-2" id="title" value={tasks.name} rows={1} readOnly/>
+                </div>
+              </div>
+              <div className="mb-4">
+                <div className="p-2">
+                  Description
+                </div>
+                <div className="mb-2">
+                  <textarea className="form-control mt-2" id="description" value={tasks.description} rows={6} readOnly/>
+                </div>
+              </div>
+              <div className="mb-3">
+                <div className="p-2 d-inline-block">
+                  Status:
+                </div>
+                <div className="m-4 p-2 d-inline-block bg-primary rounded">
+                  {tasks.dueDate}
+                </div>
+              </div>
+              <div className="p-3 d-flex justify-content-between">  
+                <div className="">
+                  <button className={disableButton===false ? "btn btn-success btn-lg" : "btn btn-lg disabled"} onClick = {() => completeTask(i)}>Finish Task</button>
+                </div>         
+                <div className="">
+                  <button className={disableButton===false ? "btn btn-danger btn-lg" : "btn btn-lg disabled"} onClick = {() => deleteTask(tasks.id)}>Delete Task</button>
+                </div>
+              </div>
+            </div>
+          })}
+          <div className="border p-4">           
+          </div>
+        </div>
       </div>
     </div>
-  </div>
   }
   </div>
 }
