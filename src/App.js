@@ -31,14 +31,6 @@ function App() {
 
     //test requests
 
-    const updateparams = {
-      "id": 60,
-      "name": "test",
-      "description": "test",
-      "dueDate": "2022-06-23T17:37:19.377",
-      "isDone": true
-  };
-
     API.getAll().then(response => { 
       setTasks(response.data.data);  
       setStatus(response.status);
@@ -49,14 +41,6 @@ function App() {
       console.log(response.data.data);  
       console.log(response.status);
     });
-
-    //API.put(updateparams).then(response => {  
-    //  console.log(response.status);
-    //});
-
-    //API.del("65").then(response => {  
-    //  console.log(response.status);
-    //});
 
   };
 
@@ -80,10 +64,34 @@ function App() {
     }).catch(error => {
       console.log(error.toJSON());
       setErrorMessage("An error has occured while trying to create a new task")
+    }).then(()=>{
+      getAllTasks();
+    });
+  };
+
+  const completeTask = (key) => {
+    const updateparams = tasks[key];
+    updateparams.isDone = true;
+
+    API.put(updateparams).then(response => {  
+      console.log(response.status);
+    }).catch(error => {
+      console.log(error.toJSON());
+    }).then(()=>{
+      getAllTasks();
     });
 
-    getAllTasks();
-  };
+  }
+
+  const deleteTask = (id) => {
+    API.del(id).then(response => {  
+      console.log(response.status);
+    }).catch(error => {
+      console.log(error.toJSON());
+    }).then(()=>{
+      getAllTasks();
+    });
+  }
   
 
   const validate = () => {
@@ -155,8 +163,8 @@ function App() {
               </div>
             </div>
             {// eslint-disable-next-line
-              tasks.map((tasks) => {
-                return <div className="border p-4 bg-white" key={tasks.id}>
+              tasks.map((tasks, i) => {
+                return <div className="border p-4 bg-white" key={i}>
                 <div className="mb-3">
                   <div className="p-2">
                     Title
@@ -177,8 +185,16 @@ function App() {
                   <div className="p-2 d-inline-block">
                     Status:
                   </div>
-                  <div className="d-inline-block">
+                  <div className="m-4 p-2 d-inline-block bg-primary rounded">
                     {tasks.dueDate}
+                  </div>
+                </div>
+                <div className="p-3 d-flex justify-content-between">  
+                  <div className="">
+                    <button className="btn btn-success btn-lg" onClick = {() => completeTask(i)}>Finish Task</button>
+                  </div>         
+                  <div className="">
+                    <button className="btn btn-danger btn-lg" onClick = {() => deleteTask(tasks.id)}>Delete Task</button>
                   </div>
                 </div>
               </div>
@@ -187,12 +203,6 @@ function App() {
             </div>
           </div>
       <div className="">
-        {// eslint-disable-next-line
-          tasks.map((tasks) => {
-            return <span key={tasks.id} className="ml-2">
-              <p>{tasks.name}</p>
-            </span>
-        })}
         <button className='btn btn-primary' onClick={() => myFunction()}>{status}</button> 
       </div>
     </div>
